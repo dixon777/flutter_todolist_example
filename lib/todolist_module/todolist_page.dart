@@ -138,7 +138,6 @@ class TodoListTile extends StatelessWidget {
           return Dialog(child: TodoEditPage(todo: todo));
         },
         context: context);
-    print(editTodo);
     if (editTodo == null) return;
 
     BlocProvider.of<TodoBloc>(context)
@@ -155,10 +154,9 @@ class TodoEditPage extends StatefulWidget {
 }
 
 class _TodoEditPageState extends State<TodoEditPage> {
-  TextEditingController _textControllerName;
-  TextEditingController _textControllerDate;
-  TextEditingController _textControllerTime;
-
+  TextEditingController _textControllerTitle;
+  TextEditingController _textControllerDateTime;
+  final _formKey = GlobalKey<FormState>();
   Todo todo;
 
   @override
@@ -169,11 +167,9 @@ class _TodoEditPageState extends State<TodoEditPage> {
     todo.name ??= "";
     todo.due ??= DateTime.now();
 
-    _textControllerName = TextEditingController(text: todo.name);
-    _textControllerDate =
-        TextEditingController(text: DateFormat(gs.dateFormat).format(todo.due));
-    _textControllerTime =
-        TextEditingController(text: DateFormat(gs.timeFormat).format(todo.due));
+    _textControllerTitle = TextEditingController(text: todo.name);
+    _textControllerDateTime = TextEditingController(
+        text: DateFormat(gs.dateTimeFormat).format(todo.due));
   }
 
   @override
@@ -181,65 +177,74 @@ class _TodoEditPageState extends State<TodoEditPage> {
     return Scaffold(
       appBar: AppBar(
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.check),
-            onPressed: () => Navigator.pop<Todo>(
-                context, todo..name = _textControllerName.text),
+          Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.check),
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  Navigator.pop<Todo>(
+                      context, todo..name = _textControllerTitle.text);
+                  return;
+                } else {
+                  Scaffold.of(context).showSnackBar(
+                      SnackBar(content: Text("Some fields are invalid")));
+                }
+              },
+            ),
           )
         ],
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              decoration: InputDecoration(labelText: "Name"),
-              controller: _textControllerName,
-              onChanged: (s) async {
-                todo.name = s;
-              },
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: "Date (Due)"),
-              controller: _textControllerDate,
-              readOnly: true,
-              onTap: () async {
-                final n = DateTime.now();
-                DateTime date = await showDatePicker(
-                  context: context,
-                  firstDate: n,
-                  initialDate: n.isAfter(todo.due) ? n : todo.due,
-                  lastDate: DateTime(todo.due.year + 100),
-                );
-                todo.due = date.add(
-                    Duration(hours: todo.due.hour, minutes: todo.due.minute));
+        padding: const EdgeInsets.all(10),
+        child: Form(
+          key: _formKey,
+          autovalidate: true,
+          child: ListView(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextFormField(
+                  controller: _textControllerTitle,
+                  validator: (str) {
+                    return str.isEmpty ? "Title should not be empty" : null;
+                  },
+                  decoration: InputDecoration(
+                      labelText: "Title", border: OutlineInputBorder()),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: TextField(
+                    controller: _textControllerDateTime,
+                    decoration: InputDecoration(
+                        labelText: "Due date (Optional)",
+                        border: OutlineInputBorder()),
+                    onTap: () async {
+                      final n = DateTime.now();
+                      DateTime pickedDate = await showDatePicker(
+                        context: context,
+                        firstDate: n,
+                        initialDate: n.isAfter(todo.due) ? n : todo.due,
+                        lastDate: DateTime(todo.due.year + 100),
+                      );
+                      if (pickedDate == null) return;
+                      TimeOfDay pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.fromDateTime(todo.due),
+                      );
+                      if (pickedTime == null) return;
 
-                setState(() {
-                  _textControllerDate.text =
-                      DateFormat(gs.dateFormat).format(todo.due);
-                });
-              },
-            ),
-            TextField(
-                decoration: InputDecoration(labelText: "Time (Due)"),
-                controller: _textControllerTime,
-                readOnly: true,
-                onTap: () async {
-                  TimeOfDay timeOfDay = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.fromDateTime(todo.due),
-                  );
-                  todo.due = todo.due.add(Duration(
-                          hours: timeOfDay.hour, minutes: timeOfDay.minute) -
-                      Duration(hours: todo.due.hour, minutes: todo.due.minute));
-                  setState(() {
-                    _textControllerTime.text =
-                        DateFormat(gs.timeFormat).format(todo.due);
-                  });
-                }),
-          ],
+                      todo.due = pickedDate.add(Duration(
+                          hours: pickedTime.hour, minutes: pickedTime.minute));
+
+                      setState(() {
+                        _textControllerDateTime.text =
+                            DateFormat(gs.dateTimeFormat).format(todo.due);
+                      });
+                    }),
+              ),
+            ],
+          ),
         ),
       ),
     );

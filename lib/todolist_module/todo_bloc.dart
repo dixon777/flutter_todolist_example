@@ -15,6 +15,8 @@ class TodoEvent {
   final TodoEventType eventType;
   final List<Todo> todos;
 
+  
+
   TodoEvent(this.eventType, {this.todos})
       : assert(eventType == TodoEventType.get ||
             eventType == TodoEventType.deleteAll ||
