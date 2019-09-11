@@ -31,6 +31,8 @@ dependencies:
 
   # Date format
   intl: ^0.16.0
+
+  flutter_duration_picker: ^1.0.0
   
 
   # Save for later
