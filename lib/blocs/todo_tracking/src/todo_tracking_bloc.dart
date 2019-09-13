@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:example_todolist/blocs/todo_tracking/todo_tracking_bloc.dart';
 import 'package:example_todolist/models/models.dart';
-import 'package:example_todolist/repo/src/todo_tracking_repo.dart';
+import 'package:example_todolist/repos/src/todo_tracking_repo.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 

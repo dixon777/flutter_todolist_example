@@ -1,4 +1,4 @@
-import 'package:example_todolist/global_setting.dart' as gs;
+import 'package:example_todolist/util/util.dart' as util;
 
 import '../models.dart';
 
@@ -84,6 +84,6 @@ class Todo extends BaseModel {
 
   @override
   String toString() {
-    return "Todo {$key_id: $id, $key_title: $title, $key_complete: $complete, $key_due: ${gs.formatDateTime(due)}, $key_expectedDuration: ${gs.formatDuration(expectedDuration)}}";
+    return "Todo {$key_id: $id, $key_title: $title, $key_complete: $complete, $key_due: ${util.formatDateTime(due)}, $key_expectedDuration: ${util.formatDuration(expectedDuration)}}";
   }
 }

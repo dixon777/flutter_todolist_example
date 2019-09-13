@@ -1,4 +1,4 @@
-import 'package:example_todolist/global_setting.dart';
+import 'package:example_todolist/settings/settings.dart';
 import 'package:example_todolist/models/src/todo_model.dart';
 import 'base_repo.dart';
 

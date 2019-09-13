@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:example_todolist/blocs/todo_log/todo_log_bloc.dart';
-import 'package:example_todolist/repo/repo.dart';
+import 'package:example_todolist/repos/repo.dart';
 import 'package:flutter/foundation.dart';
 
 class TodoLogBloc extends Bloc<TodoLogEvent, TodoLogState> {

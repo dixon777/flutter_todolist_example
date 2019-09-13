@@ -1,6 +1,6 @@
 import 'package:example_todolist/models/src/todo_log_model.dart';
+import 'package:example_todolist/settings/settings.dart';
 
-import '../../global_setting.dart';
 import '../repo.dart';
 
 class TodoLogRepo extends BaseRepo {

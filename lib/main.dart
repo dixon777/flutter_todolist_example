@@ -1,18 +1,18 @@
 import 'package:bloc/bloc.dart';
 import 'package:example_todolist/blocs/blocs.dart';
-import 'package:example_todolist/repo/repo.dart';
-import 'package:example_todolist/todolist_page.dart';
+import 'package:example_todolist/repos/repo.dart';
+import 'package:example_todolist/views/views.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'global_setting.dart' as gb;
+import 'settings/settings.dart' as settings;
 
 void main() async {
   // Debug
-  if(gb.debugDB) {
+  if(settings.debugDB) {
     BlocSupervisor.delegate = CustomBlocDelegate();
-  await Sqflite.devSetDebugModeOn(gb.debugDB);
+  await Sqflite.devSetDebugModeOn(settings.debugDB);
   }
   
   runApp(MyApp());

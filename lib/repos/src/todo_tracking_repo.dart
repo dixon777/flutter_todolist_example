@@ -1,10 +1,10 @@
 // Used to store the running tracking details even if the app is killed by OS
-import 'package:example_todolist/global_setting.dart' as gs;
+import 'package:example_todolist/settings/settings.dart' as settings;
 import 'package:example_todolist/models/models.dart';
-import 'package:example_todolist/repo/repo.dart';
+import 'package:example_todolist/repos/repo.dart';
 
 class TodoTrackingRepo extends BaseRepo {
-  TodoTrackingRepo({helper}):super(helper: helper, tableName: gs.todoTrackingTableName);
+  TodoTrackingRepo({helper}):super(helper: helper, tableName: settings.todoTrackingTableName);
 
   Future<List<TodoLog>> loadTodoLogs() async {
     return loadItems().then((items) => items.map<TodoLog>(TodoLog.fromMap).toList());

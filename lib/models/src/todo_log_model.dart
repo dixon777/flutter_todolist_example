@@ -1,4 +1,4 @@
-import 'package:example_todolist/global_setting.dart';
+import 'package:example_todolist/util/util.dart' as util;
 import 'package:example_todolist/models/models.dart';
 
 class TodoLog extends BaseModel {
@@ -46,6 +46,6 @@ class TodoLog extends BaseModel {
 
   @override
   String toString() {
-    return "TodoTimeLog {$key_id: $id, ${Todo.key_foreign}: $todoId, ${key_startTime}: ${formatDateTime(startTime)}, $key_duration: ${formatDuration(duration)}}";
+    return "TodoTimeLog {$key_id: $id, ${Todo.key_foreign}: $todoId, ${key_startTime}: ${util.formatDateTime(startTime)}, $key_duration: ${util.formatDuration(duration)}}";
   }
 }
