@@ -22,18 +22,19 @@ class BaseRepo {
 
   Future<void> updateItems(Iterable<Map<String, dynamic>> maps) async {
     final batch = (await this.helper.database).batch();
-    maps.forEach((map) => batch.update(tableName, map,
-        where: "${BaseModel.key_id} = ?",
-        whereArgs: [
-          map[BaseModel.key_id],
-        ],
-        conflictAlgorithm: ConflictAlgorithm.abort));
+    maps.forEach((map) {
+      final id = map[BaseModel.key_id];
+      batch
+          .update(tableName, map, where: "${BaseModel.key_id} = ?", whereArgs: [
+        id,
+      ]);
+    });
     batch.commit();
   }
 
   Future<void> deleteItemsOfPrimaryKeys(Iterable<int> ids) async {
     final db = await this.helper.database;
-    if(db == null || !db.isOpen) return;
+
     final batch = db.batch();
     ids.forEach((id) => batch
         .delete(tableName, where: "${BaseModel.key_id} = ?", whereArgs: [id]));

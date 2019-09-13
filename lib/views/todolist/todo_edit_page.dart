@@ -7,10 +7,11 @@ import 'package:flutter_duration_picker/flutter_duration_picker.dart';
 
 
 class TodoEditPage extends StatefulWidget {
+  final String title;
   final Todo todo;
   final List<TodoLog> logs;
 
-  TodoEditPage({Key key, this.todo, this.logs:const[]}) : super(key: key);
+  TodoEditPage({Key key, this.title, this.todo, this.logs:const[]}) : super(key: key);
   @override
   _TodoEditPageState createState() => _TodoEditPageState();
 }
@@ -27,6 +28,7 @@ class _TodoEditPageState extends State<TodoEditPage> {
   @override
   void initState() {
     super.initState();
+    
 
     todo = widget.todo ?? Todo();
 
@@ -133,11 +135,12 @@ class _TodoEditPageState extends State<TodoEditPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text(widget.title),
         actions: <Widget>[
           Builder(
             builder: (context) => IconButton(
               icon: Icon(Icons.check),
-              onPressed: () {
+              onPressed: () async {
                 if (_formKey.currentState?.validate() ?? false) {
                   Navigator.pop<Todo>(
                       context, todo.copyWith(title: _tcTitle.text));

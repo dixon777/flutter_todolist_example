@@ -5,11 +5,13 @@ import 'package:example_todolist/models/models.dart';
 import 'package:example_todolist/repos/repo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'package:example_todolist/util/util.dart' as util;
 
 import 'package:example_todolist/views/views.dart';
+
 class TodoItemTile extends StatefulWidget {
   final Todo todo;
   final DateTime startTime;
@@ -41,10 +43,10 @@ class _TodoItemTileState extends State<TodoItemTile> {
         builder: (BuildContext context, TodoLogState todoLogState) {
       return _displayWidget(context);
     });
+    final sqliteHelper = Provider.of<SelfDefinedSQLiteHelper>(context);
     return BlocProvider<TodoLogBloc>(
-      builder: (context) =>
-          TodoLogBloc(repo: TodoLogRepo(helper: TodolistSQLiteHelper()))
-            ..dispatch(LoadTodoLogs(widget.todo)),
+      builder: (context) => TodoLogBloc(repo: TodoLogRepo(helper: sqliteHelper))
+        ..dispatch(LoadTodoLogs(widget.todo)),
       child: Builder(
         builder: (context) => widget.startTime != null
             ? TodoTrackingStopBlocListener(
@@ -62,7 +64,7 @@ class _TodoItemTileState extends State<TodoItemTile> {
           ? DismissDirection.endToStart
           : DismissDirection.horizontal,
       child: ListTile(
-        onTap: () => _onEdit(context),
+        onTap: () => _onEditTodo(context),
         title: Text(widget.todo.title),
         subtitle: Text(util.formatDateTime(widget.todo.due)),
         trailing: _trailingWidget(context),
@@ -163,19 +165,20 @@ class _TodoItemTileState extends State<TodoItemTile> {
   }
 
   FutureOr<void> _triggerTimer(BuildContext context) async {
-    BlocProvider.of<TodoTrackingBloc>(context)
-          .dispatch(widget.startTime == null ? StartTodoTracking(widget.todo):StopTodoTracking(widget.todo));
+    BlocProvider.of<TodoTrackingBloc>(context).dispatch(widget.startTime == null
+        ? StartTodoTracking(widget.todo)
+        : StopTodoTracking(widget.todo));
   }
 
-  Future<void> _onEdit(BuildContext context) async {
+  Future<void> _onEditTodo(BuildContext context) async {
     final TodoLogState todoLogState =
         BlocProvider.of<TodoLogBloc>(context).currentState;
     final logs = todoLogState is TodoLogsLoaded ? todoLogState.logs : [];
-    final editTodo = await showDialog<Todo>(
-        builder: (context) {
-          return Dialog(child: TodoEditPage(todo: widget.todo, logs: logs));
-        },
-        context: context);
+    final editTodo = await Navigator.push(
+        context,
+        MaterialPageRoute<Todo>(
+            builder: (context) => TodoEditPage(title:"Edit todo",todo: widget.todo, logs: logs),
+            settings: RouteSettings(name: "editTodo")));
     if (editTodo == null) return;
 
     BlocProvider.of<TodoBloc>(context).dispatch(UpdateTodo(editTodo));

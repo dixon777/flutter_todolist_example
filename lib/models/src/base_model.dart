@@ -12,7 +12,7 @@ abstract class BaseModel extends Equatable {
   Map<String, dynamic> toMap({withId: true}) {
     final jsonMap = <String, dynamic>{};
     if (withId && id != null) {
-      jsonMap[key_id] = key_id;
+      jsonMap[key_id] = id;
     }
     return jsonMap;
   }
