@@ -110,7 +110,7 @@ class TodoRecord extends Item {
 
 // }
 
-class TodolistSQLiteHelper extends SQLiteDBHelper {
+class TodolistSQLiteHelper extends SQLiteHelper {
   TodolistSQLiteHelper() : super(gs.todolistDbName, gs.todolistDbVersion);
 
   @override
@@ -123,7 +123,7 @@ class TodolistSQLiteHelper extends SQLiteDBHelper {
          ${Todo.key_title} TEXT NOT NULL, 
          ${Todo.key_hasComplete} INTEGER NOT NULL,
          "${Todo.key_expectedDuration}" INTEGER)""");
-    batch.execute("""CREATE TABLE IF NOT EXISTS ${gs.todoRecordTableName} 
+    batch.execute("""CREATE TABLE IF NOT EXISTS ${gs.todoLogTableName} 
         (${Item.key_id} INTEGER PRIMARY KEY AUTOINCREMENT, 
          ${TodoRecord.key_startTime} INTEGER NOT NULL,
          ${TodoRecord.key_duration} INTEGER NOT NULL, 
@@ -143,10 +143,10 @@ class TodolistSQLiteHelper extends SQLiteDBHelper {
           .toList();
       final results = await performBatch((batch) {
         todos.forEach((Todo todo) {
-          batch.query(gs.todoRecordTableName,
+          batch.query(gs.todoLogTableName,
               where: "${Todo.key_foreign}=?", whereArgs: [todo.id]);
         });
-        batch.query(gs.todoRecordTableName);
+        batch.query(gs.todoLogTableName);
         return batch;
       });
       for (int i = 0; i < todos.length; ++i) {
@@ -218,7 +218,7 @@ class TodolistSQLiteHelper extends SQLiteDBHelper {
     try {
       final results = await performBatch((batch) {
         records.forEach((record) {
-          batch.insert(gs.todoRecordTableName, record.toMap());
+          batch.insert(gs.todoLogTableName, record.toMap());
         });
         return batch;
       });
@@ -233,7 +233,7 @@ class TodolistSQLiteHelper extends SQLiteDBHelper {
     try {
       final results = await performBatch((batch) {
         records.forEach((record) {
-          batch.update(gs.todoRecordTableName, record.toMap(),
+          batch.update(gs.todoLogTableName, record.toMap(),
               where: "${Item.key_id} = ?",
               whereArgs: [
                 record.id,
@@ -252,7 +252,7 @@ class TodolistSQLiteHelper extends SQLiteDBHelper {
     try {
       final results = await performBatch((batch) {
         records.forEach((record) {
-          batch.delete(gs.todoRecordTableName,
+          batch.delete(gs.todoLogTableName,
               where: "${Item.key_id} = ?",
               whereArgs: [
                 record.id,

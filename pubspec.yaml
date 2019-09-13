@@ -29,10 +29,16 @@ dependencies:
   flutter_bloc: ^0.21.0
   rxdart: any
 
+  # Equation helper
+  equatable: ^0.2.0
+
   # Date format
   intl: ^0.16.0
 
   flutter_duration_picker: ^1.0.0
+
+  # Provide date
+  provider: ^3.1.0
   
 
   # Save for later

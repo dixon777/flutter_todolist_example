@@ -13,7 +13,9 @@ class TodoTimeLogState {
   final int todoId;
   final DateTime startTime;
 
-  TodoTimeLogState({this.todoId, this.startTime});
+  final TodoTimeLogEvent event;
+
+  TodoTimeLogState({this.event, this.todoId, this.startTime});
 }
 
 class TodoTimeLogBloc extends Bloc<TodoTimeLogEvent, TodoTimeLogState> {
@@ -26,12 +28,12 @@ class TodoTimeLogBloc extends Bloc<TodoTimeLogEvent, TodoTimeLogState> {
     switch (event.type) {
       case TodoTimeLogEventType.start:
         if (currentState.todoId == null) {
-          yield TodoTimeLogState(todoId: event.todoId, startTime: DateTime.now());
+          yield TodoTimeLogState(event: event, todoId: event.todoId, startTime: DateTime.now());
         }
         break;
       case TodoTimeLogEventType.stop:
         if (currentState.todoId == event.todoId) {
-          yield TodoTimeLogState();
+          yield TodoTimeLogState(event: event);
         }
         break;
     }

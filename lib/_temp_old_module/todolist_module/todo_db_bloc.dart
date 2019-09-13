@@ -37,20 +37,21 @@ class TodoRecordEvent extends TodoEvent<TodoRecordEventType, TodoRecord> {
         super(type: type, items: records);
 }
 
-class TodoState {
+class TodoDbState {
   final List<Todo> todos;
+  final TodoEvent event;
 
-  TodoState({todos}) : this.todos = todos ?? <Todo>[];
+  TodoDbState({this.event, todos}) : this.todos = todos ?? <Todo>[];
 }
 
-class TodoDbBloc extends Bloc<TodoEvent, TodoState> {
+class TodoDbBloc extends Bloc<TodoEvent, TodoDbState> {
   TodolistSQLiteHelper _dbHelper = TodolistSQLiteHelper();
 
   @override
-  TodoState get initialState => TodoState();
+  TodoDbState get initialState => TodoDbState();
 
   @override
-  Stream<TodoState> mapEventToState(TodoEvent event) async* {
+  Stream<TodoDbState> mapEventToState(TodoEvent event) async* {
     if (event.type is TodoItemEventType) {
       switch (event.type) {
         case TodoItemEventType.add:
@@ -87,7 +88,7 @@ class TodoDbBloc extends Bloc<TodoEvent, TodoState> {
       }
     }
 
-    yield TodoState(todos: await _dbHelper.getAllTodos());
+    yield TodoDbState(event: event, todos: await _dbHelper.getAllTodos());
   }
 
   @override

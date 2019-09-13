@@ -4,32 +4,17 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:synchronized/synchronized.dart';
 
-abstract class Item {
-  static const key_id = 'id';
-
-  int id;
-  Item({this.id});
-
-  
-
-  @mustCallSuper
-  Map<String, dynamic> toMap({withId: true}) {
-    final jsonMap = <String, dynamic>{};
-    if (withId && id != null) {
-      jsonMap[key_id] = key_id;
-    }
-    return jsonMap;
-  }
-}
-
-abstract class SQLiteDBHelper {
+abstract class SQLiteHelper {
   final String databaseName;
   final int version;
+  final Lock _lock = Lock();
 
-  SQLiteDBHelper(this.databaseName, this.version);
+  SQLiteHelper(this.databaseName, this.version);
 
   Database _database;
+  String _databasePath;
 
   FutureOr<Batch> get batch async {
     return (await database)?.batch();
@@ -40,22 +25,30 @@ abstract class SQLiteDBHelper {
       return _database;
     }
 
-    final dbPath = await databasePath;
-    if (!await databaseExists(join(dbPath, databaseName))) {
-      await Directory(dbPath).create(recursive: true);
-    }
+    await _lock.synchronized(() async {
+      if (_database == null || !_database.isOpen) {
+        _database = await openDatabase(
+          join(await databasePath, databaseName),
+          version: version,
+          onConfigure: onConfigure,
+          onCreate: onCreate,
+          onOpen: onOpen,
+          singleInstance: true,
+        );
+      }
+    });
 
-    return await openDatabase(
-      join(dbPath, databaseName),
-      version: version,
-      onCreate: onCreate,
-      onOpen: onOpen,
-      singleInstance: true,
-    );
+    return _database;
   }
 
-  Future<String> get databasePath async {
-    return await getDatabasesPath();
+  FutureOr<String> get databasePath async {
+    if (_databasePath == null) {
+      _databasePath = await getDatabasesPath();
+      if (!await databaseExists(join(_databasePath, databaseName))) {
+        await Directory(_databasePath).create(recursive: true);
+      }
+    }
+    return _databasePath;
   }
 
   Future<void> closeDb() async {
@@ -81,11 +74,15 @@ abstract class SQLiteDBHelper {
     return await (batchActions(batch).commit());
   }
 
+  FutureOr<void> onConfigure(Database db) async {
+    // SQLite does not enable foreign key by default
+    await db.execute("PRAGMA foreign_keys = ON");
+  }
+
   FutureOr<void> onCreate(Database db, int version) async {}
 
   FutureOr<void> onOpen(Database db) async {
-    // SQLite does not enable foreign key by default
-    await db.execute("PRAGMA foreign_keys = ON");
+    
   }
 
   Future<void> close() async {
